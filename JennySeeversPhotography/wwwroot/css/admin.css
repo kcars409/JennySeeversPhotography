@@ -1,0 +1,76 @@
+﻿body {
+    margin: 0;
+}
+
+main {
+    display: flex;
+    position: fixed;
+    flex-direction: row;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+}
+
+#cat-list {
+    display: flex;
+    width: 25ch;
+}
+
+#projects {
+    display: flex;
+    width: 35ch;
+}
+
+#photo-display {
+    display: flex;
+    flex-grow: 1;
+}
+
+.category {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    height: 1.5em;
+    padding: 0.5ch;
+}
+
+.pencil {
+    display: none;
+    right: 0;
+    color: white;
+}
+
+.category:hover {
+    background-color: lightblue;
+    cursor: pointer;
+}
+
+.category:hover > .pencil {
+    display: block;
+    background-color: lightcoral;
+}
+
+.category:hover > .pencil:hover {
+    background-color: red;
+}
+
+.item-name {
+    display: block;
+}
+
+.folder-level {
+    display: flex;
+    flex-direction: column;
+    border: 1px inset black;
+    box-sizing: border-box;
+    border-left: 0;
+}
+
+.cat-select {
+    background-color: steelblue;
+    height: 2em;
+}
+
+
