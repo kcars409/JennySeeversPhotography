@@ -42,6 +42,11 @@ main {
     color: white;
 }
 
+.deleter {
+    right: 0;
+    color: white;
+}
+
 .category:hover {
     background-color: lightblue;
     cursor: pointer;
@@ -69,6 +74,11 @@ main {
 }
 
 .cat-select {
+    background-color: steelblue;
+    height: 2em;
+}
+
+.proj-select {
     background-color: steelblue;
     height: 2em;
 }

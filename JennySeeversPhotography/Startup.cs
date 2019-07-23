@@ -61,6 +61,7 @@ namespace JennySeeversPhotography
             }
 
             app.UseHttpsRedirection();
+            app.UseDefaultFiles();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

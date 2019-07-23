@@ -1,30 +1,77 @@
 ﻿$(function () {
     var $types = $("#cat-list");
     var $projs = $("#projects");
+    var selCat;
+    var selProj;
 
     buildCats($types);
 
     $types.on("click", ".category", selectCat);
     $types.on("click", "#add-cat", openAdder);
-
     $types.on("click", ".pencil", openEdit);
     $types.on("keypress", ".adding", addCat);
-    $(".editing").on("focusout", ".editing", cancelEdit); //this needs love
+    $types.on("click", ".deleter", deleteCat);
+    //$types.on("focusout", ".editing", cancelEdit); //this needs love
 
-    $projs.on("click", ".category", selectCat);
+    $projs.on("click", ".category", selectProj);
+    $projs.on("click", "#add-proj", openAdder);
+    $projs.on("keypress", ".adding", addProj)
+
+    function addProj() {
+        if (event.which == "13") {
+            var entry = $(this).val();
+            $.ajax({
+                url: "admin/add-proj",
+                method: "post",
+                dataType: "json",
+                data: {
+                    name: entry
+                },
+                error: function () {
+                    alert("This didn't work. Ajax-wise.");
+                },
+                success: function () {
+                    buildCats($projs);
+                }
+            });
+        } else if ($(this).val.length > 20) {
+            //tell it what to do if the project name is too long
+        }
+    }
+
+    function deleteCat() {
+        var id = $(this).parent().data("typeID");
+        console.log("TypeID = " + id);
+        $.ajax({
+            url: "admin/delete-cat",
+            method: "delete",
+            dataType: "json",
+            data: {
+                id: id
+            },
+            error: function () {
+                alert("AJAX Error");
+            },
+            success: function () {
+                buildCats($types);
+            }
+        });
+    }
 
     function cancelEdit() {
         alert("this worked");
-        var $cat = $(".editing").parent();
+        var $cat = $(this).parent();
         $(".editing").remove();
+        $(".deleter").remove();
         $cat.children().show();
+        $cat.find(".pencil").hide();
     }
 
     function openEdit() {
         var theCat = $(this).parent();
         var theName = theCat.find(".item-name").text();
         theCat.children().hide();
-        theCat.append("<input class='editing add-cat' value='" + theName + "' autofocus>");
+        theCat.append("<input class='editing add-cat' value='" + theName + "' autofocus><span class='deleter'>&#x274c;</span>");
         $(".editing").select();
     }
 
@@ -51,12 +98,32 @@
     }
 
     function openAdder() {
-        $(this).empty().append("<input class='adding add-cat' placeholder='+ Add Class' autofocus>");
+        var whatItIs
+        if ($(this) == $types) {
+            whatItIs = "Class";
+        } else {
+            whatItIs = "Project";
+        }
+        $(this).empty().append("<input class='adding add-cat' placeholder='+ Add " + whatItIs + "' autofocus>");
     }
 
     function selectCat() {
         $(".cat-select").removeClass("cat-select");
         $(this).addClass("cat-select");
+        selCat = $(this).data("typeID");
+        if (!$(this).hasClass("adder")) {
+            if ($(this).has) {  // Fix this shit
+                buildCats.call(this, $projs);
+            } else {
+                alert("I've won the internet.");
+            }
+        }
+    }
+
+    function selectProj() {
+        $(".proj-select").removeClass("proj-select");
+        $(this).addClass("proj-select");
+        selProj = $(this).data("projID");
         if (!$(this).hasClass("adder")) {
             if ($(this).has) {  // Fix this shit
                 buildCats.call(this, $projs);

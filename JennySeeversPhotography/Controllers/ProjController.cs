@@ -38,13 +38,14 @@ namespace JennySeeversPhotography.Controllers
         }
 
         [HttpPost("add-proj")]
-        public JsonResult AddProj(string name)
+        public JsonResult AddProj(int typeID, string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
 
             _context.Add(new Project
             {
-                ProjName = name
+                ProjName = name,
+                ProjTypeID = typeID
             });
 
             _context.SaveChanges();

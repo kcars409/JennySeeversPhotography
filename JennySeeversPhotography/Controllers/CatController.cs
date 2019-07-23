@@ -76,5 +76,23 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
+        [HttpDelete("delete-cat")]
+        public JsonResult DeleteCat(int id)
+        {
+            IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
+
+            var cat = _context.ProjTypes
+                .Where(t => t.TypeID == id)
+                .First();
+
+            _context.Remove(cat);
+
+            _context.SaveChanges();
+
+            return new JsonResult(new
+            {
+                status = true
+            });
+        }
     }
 }
