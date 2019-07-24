@@ -6,6 +6,7 @@ using JennySeeversPhotography.Data;
 using JennySeeversPhotography.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace JennySeeversPhotography.Controllers
@@ -42,10 +43,16 @@ namespace JennySeeversPhotography.Controllers
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
 
-            _context.Add(new Project
+            var type = _context.ProjTypes
+                .Include(t => t.ProjectsOfType) //wouldn't hurt to ask about this
+                .Where(t => t.TypeID == typeID)
+                .First();
+
+            type.ProjectsOfType.Add(new Project
             {
                 ProjName = name,
-                ProjTypeID = typeID
+                ProjTypeID = typeID,
+                CreatedAt = DateTime.Now
             });
 
             _context.SaveChanges();

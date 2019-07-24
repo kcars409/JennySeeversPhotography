@@ -10,6 +10,7 @@
     $types.on("click", "#add-cat", openAdder);
     $types.on("click", ".pencil", openEdit);
     $types.on("keypress", ".adding", addCat);
+    $types.on("keypress", ".editing", editCat);
     $types.on("click", ".deleter", deleteCat);
     //$types.on("focusout", ".editing", cancelEdit); //this needs love
 
@@ -25,13 +26,12 @@
                 method: "post",
                 dataType: "json",
                 data: {
-                    name: entry
+                    name: entry,
+                    typeID: selCat
                 },
-                error: function () {
-                    alert("This didn't work. Ajax-wise.");
-                },
+                error: ajaxError,
                 success: function () {
-                    buildCats($projs);
+                    buildCats.call(this, $projs);
                 }
             });
         } else if ($(this).val.length > 20) {
@@ -49,9 +49,7 @@
             data: {
                 id: id
             },
-            error: function () {
-                alert("AJAX Error");
-            },
+            error: ajaxError,
             success: function () {
                 buildCats($types);
             }
@@ -70,9 +68,30 @@
     function openEdit() {
         var theCat = $(this).parent();
         var theName = theCat.find(".item-name").text();
+        selCat = theCat.data("typeID")
         theCat.children().hide();
-        theCat.append("<input class='editing add-cat' value='" + theName + "' autofocus><span class='deleter'>&#x274c;</span>");
+        theCat.append("<input class='editing add-cat' autofocus><span class='deleter'>&#x274c;</span>"); // value='" + theName + "'
+        $(".editing").attr("value", theName);
         $(".editing").select();
+    }
+
+    function editCat(event) {
+        if (event.which == "13") {
+            var entry = $(this).val();
+            $.ajax({
+                url: "admin/edit-cat",
+                method: "post",
+                dataType: "json",
+                data: {
+                    name: entry,
+                    id: selCat
+                },
+                error: ajaxError,
+                success: function () {
+                    buildCats($types);
+                }
+            })
+        }
     }
 
     function addCat(event) {
@@ -85,11 +104,11 @@
                 data: {
                     name: entry
                 },
-                error: function () {
-                    alert("This didn't work. Ajax-wise.");
-                },
+                error: ajaxError,
                 success: function () {
                     buildCats($types);
+                    $(".adding").remove();
+                    $("#add-cat").removeClass("cat-select").contents().show();
                 }
             });
         } else if ($(this).val.length > 20) {
@@ -98,13 +117,21 @@
     }
 
     function openAdder() {
-        var whatItIs
-        if ($(this) == $types) {
+        var whatItIs;
+        var $nav = $(this).parent();
+        if ($nav.attr("id") == "cat-list") {
             whatItIs = "Class";
         } else {
-            whatItIs = "Project";
+            if (selCat >= 0) {
+                whatItIs = "Project";
+            } else {
+                alert("No Project Category selected.");
+                $(".proj-select").removeClass("proj-select");
+                return
+            }
         }
-        $(this).empty().append("<input class='adding add-cat' placeholder='+ Add " + whatItIs + "' autofocus>");
+        $(this).contents().hide();
+        $(this).append("<input class='adding add-cat' placeholder='+ Add " + whatItIs + "' autofocus>");
     }
 
     function selectCat() {
@@ -112,11 +139,7 @@
         $(this).addClass("cat-select");
         selCat = $(this).data("typeID");
         if (!$(this).hasClass("adder")) {
-            if ($(this).has) {  // Fix this shit
-                buildCats.call(this, $projs);
-            } else {
-                alert("I've won the internet.");
-            }
+            buildCats.call(this, $projs);
         }
     }
 
@@ -148,9 +171,7 @@
             url: url,
             dataType: "json",
             data: data,
-            error: function () {
-                alert("AJAX error!")
-            },
+            error: ajaxError,
             success: function (data) {
                 fillColumn(data, whichColumn);
             }
@@ -189,3 +210,7 @@
         whichColumn.append($add);
     }
 });
+
+function ajaxError() {
+    alert("AJAX Error");
+};
