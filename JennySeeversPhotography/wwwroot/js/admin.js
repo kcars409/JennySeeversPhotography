@@ -31,9 +31,10 @@
                 },
                 error: ajaxError,
                 success: function () {
-                    buildCats.call(this, $projs);
+                    buildCats.call($("#cat-list .cat-select"), $projs);
                 }
             });
+
         } else if ($(this).val.length > 20) {
             //tell it what to do if the project name is too long
         }
@@ -42,18 +43,28 @@
     function deleteCat() {
         var id = $(this).parent().data("typeID");
         console.log("TypeID = " + id);
-        $.ajax({
-            url: "admin/delete-cat",
-            method: "delete",
-            dataType: "json",
-            data: {
-                id: id
-            },
-            error: ajaxError,
-            success: function () {
+        if (confirm("Are you sure you want to delete this category and everything in it??")) {
+            if (confirm("Are you REALLY sure you want to delete this category and everything in it??")) {
+                $.ajax({
+                    url: "admin/delete-cat",
+                    method: "delete",
+                    dataType: "json",
+                    data: {
+                        id: id
+                    },
+                    error: ajaxError,
+                    success: function () {
+                        buildCats($types);
+                    }
+                });
+            } else {
                 buildCats($types);
+                return
             }
-        });
+        } else {
+            buildCats($types);
+            return
+        }
     }
 
     function cancelEdit() {
@@ -107,8 +118,6 @@
                 error: ajaxError,
                 success: function () {
                     buildCats($types);
-                    $(".adding").remove();
-                    $("#add-cat").removeClass("cat-select").contents().show();
                 }
             });
         } else if ($(this).val.length > 20) {
@@ -122,7 +131,7 @@
         if ($nav.attr("id") == "cat-list") {
             whatItIs = "Class";
         } else {
-            if (selCat >= 0) {
+            if (selCat > 0) {
                 whatItIs = "Project";
             } else {
                 alert("No Project Category selected.");
@@ -179,6 +188,9 @@
     }
 
     function fillColumn(data, whichColumn) {
+        $(".adding").remove();
+        $(".proj-select").removeClass("proj-select");
+
         var $add = whichColumn.find(".adder").clone();
         var names = [];
         var ids = [];
@@ -194,20 +206,23 @@
                 ids.push(data[i].typeID);
             }
             dataName = "typeID"; //This is the data name to retrieve in the project category builder
+            selCat = 0;
         } else if (whichColumn == $projs) {
             for (var i = 0; i < data.length; i++) {
                 names.push(data[i].projName);
                 ids.push(data[i].projID);
             }
             dataName = "projID"; //This is the data name to retrieve in the project builder
+            selProj = 0;
         }
         for (var ci = 0; ci < data.length; ci++) {
             whichColumn.append("<div class='category'><span class='item-name' id='this-un' /><span class='pencil hid-pencil'>&#x270E;</span></div>");
             $("#this-un").text(names[ci]).removeAttr("id");
             whichColumn.find(".category:last-of-type").data(dataName, ids[ci]);
         }
-
+        
         whichColumn.append($add);
+        $add.removeClass("cat-select").contents().show();
     }
 });
 
