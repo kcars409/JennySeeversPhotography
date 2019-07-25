@@ -1,6 +1,7 @@
 ﻿$(function () {
     var $types = $("#cat-list");
     var $projs = $("#projects");
+    var $pics = $("#photo-display");
     var selCat;
     var selProj;
 
@@ -31,6 +32,7 @@
                 },
                 error: ajaxError,
                 success: function () {
+                    $(".proj-select").removeClass("proj-select");
                     buildCats.call($("#cat-list .cat-select"), $projs);
                 }
             });
@@ -146,9 +148,10 @@
     function selectCat() {
         $(".cat-select").removeClass("cat-select");
         $(this).addClass("cat-select");
+        resetPics();
         selCat = $(this).data("typeID");
         if (!$(this).hasClass("adder")) {
-            buildCats.call(this, $projs);
+            buildCats($projs);
         }
     }
 
@@ -158,7 +161,7 @@
         selProj = $(this).data("projID");
         if (!$(this).hasClass("adder")) {
             if ($(this).has) {  // Fix this shit
-                buildCats.call(this, $projs);
+                buildCats($pics);
             } else {
                 alert("I've won the internet.");
             }
@@ -171,9 +174,12 @@
 
         if (whichColumn == $types) {
             url += "get-cats";
-        } else {
+        } else if (whichColumn == $projs) {
             url += "get-projs";
-            data = { typeID: $(this).data("typeID") };
+            data = { typeID: selCat };
+        } else if (whichColumn == $pics) {
+            url += "get-pics";
+            data = { id: selProj };
         }
 
         $.ajax({
@@ -189,14 +195,12 @@
 
     function fillColumn(data, whichColumn) {
         $(".adding").remove();
-        $(".proj-select").removeClass("proj-select");
 
         var $add = whichColumn.find(".adder").clone();
         var names = [];
         var ids = [];
         var dataName = "";
-
-        whichColumn.find(".adder").remove();
+        
         whichColumn.empty();
 
         // This part breaks down the data back from the ajax call
@@ -214,6 +218,13 @@
             }
             dataName = "projID"; //This is the data name to retrieve in the project builder
             selProj = 0;
+        } else if (whichColumn == $pics) {
+            for (var i = 0; i < data.length; i++) {
+                names.push(data[i].title);
+                ids.push(data[i].picID);
+            }
+            dataName = "picID"; //This is the data name to retrieve in the project builder
+            selPic = 0;
         }
         for (var ci = 0; ci < data.length; ci++) {
             whichColumn.append("<div class='category'><span class='item-name' id='this-un' /><span class='pencil hid-pencil'>&#x270E;</span></div>");
@@ -222,10 +233,15 @@
         }
         
         whichColumn.append($add);
-        $add.removeClass("cat-select").contents().show();
+        $add.removeClass("cat-select").removeClass("proj-select").contents().show();
+    }
+
+    function ajaxError() {
+        alert("AJAX Error");
+    };
+
+    function resetPics() {
+        $add = $("#add-pic").clone().hide();
+        $pics.empty().append($add);
     }
 });
-
-function ajaxError() {
-    alert("AJAX Error");
-};

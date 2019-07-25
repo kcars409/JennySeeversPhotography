@@ -22,11 +22,6 @@ main {
     width: 35ch;
 }
 
-#photo-display {
-    display: flex;
-    flex-grow: 1;
-}
-
 .category {
     display: flex;
     align-items: center;
@@ -83,4 +78,31 @@ main {
     height: 2em;
 }
 
+/* This is stuff for the photos section: */
 
+#photo-display {
+    height: 100vh;
+    display: flex;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    object-fit: contain;
+}
+
+.photo {
+    display: none;
+    height: 250px;
+    width: 250px;
+    border: 1px dashed darkgrey;
+    font-size: 3em;
+    font-weight: bolder;
+    color: darkgrey;
+    line-height: 230px;
+    vertical-align: middle;
+    text-align: center;
+    margin-top: 1rem;
+    margin-left: 1rem;
+    padding: 10px;
+    box-sizing: border-box;
+    cursor: pointer;
+    user-select: none;
+}
