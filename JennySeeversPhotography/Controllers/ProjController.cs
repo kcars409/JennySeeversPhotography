@@ -84,5 +84,23 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
+        [HttpDelete]
+        public JsonResult DeleteProj(int id)
+        {
+            IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
+
+            var proj = _context.Projects
+                .Where(p => p.ProjID == id)
+                .First();
+
+            _context.Remove(proj);
+
+            _context.SaveChanges();
+
+            return new JsonResult(new
+            {
+                status = true
+            });
+        }
     }
 }
