@@ -12,8 +12,7 @@ namespace JennySeeversPhotography.Models
         public int PicID { get; set; }
         public string Title { get; set; }
         public bool IsFeatured { get; set; }
-        public int PhotoProjID { get; set; } 
-        public int PhotoProjTypeID { get; set; }
+        public int PhotoProjID { get; set; }
         public string PhotoURL { get; set; }
         public string Location { get; set; }
     }
