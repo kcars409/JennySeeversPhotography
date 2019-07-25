@@ -94,7 +94,7 @@ namespace JennySeeversPhotography.Controllers
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
 
             var pic = _context.Photos
-                .Where(t => t.PhotoProjID == id)
+                .Where(t => t.PicID == id)
                 .First();
 
             _context.Remove(pic);
