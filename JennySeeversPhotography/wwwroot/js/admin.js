@@ -4,6 +4,7 @@
     var $pics = $("#photo-display");
     var selCat;
     var selProj;
+    var selPic;
 
     buildCats($types);
 
@@ -11,13 +12,15 @@
     $types.on("click", "#add-cat", openAdder);
     $types.on("click", ".pencil", openEdit);
     $types.on("keypress", ".adding", addCat);
-    $types.on("keypress", ".editing", editCat);
+    $types.on("keypress", ".editing", editName);
     $types.on("click", ".deleter", deleteCat);
     //$types.on("focusout", ".editing", cancelEdit); //this needs love
 
     $projs.on("click", ".category", selectProj);
     $projs.on("click", "#add-proj", openAdder);
-    $projs.on("keypress", ".adding", addProj)
+    $projs.on("click", ".pencil", openEdit);
+    $projs.on("keypress", ".adding", addProj);
+    $projs.on("keypress", ".editing", editName);
 
     function addProj() {
         if (event.which == "13") {
@@ -36,7 +39,8 @@
                     buildCats.call($("#cat-list .cat-select"), $projs);
                 }
             });
-
+        } else if (event.which == "27") {
+            cancelEdit.call(this);
         } else if ($(this).val.length > 20) {
             //tell it what to do if the project name is too long
         }
@@ -81,29 +85,49 @@
     function openEdit() {
         var theCat = $(this).parent();
         var theName = theCat.find(".item-name").text();
-        selCat = theCat.data("typeID")
+        var whichColumn = theCat.parent().attr("id");
+        var sayWhich;
+        if (whichColumn == "cat-list") {
+            selCat = theCat.data("typeID");
+            sayWhich = "add-cat";
+        } else if (whichColumn == "projects") {
+            selCat = theCat.data("projID");
+            sayWhich = "add-proj";
+        }
         theCat.children().hide();
-        theCat.append("<input class='editing add-cat' autofocus><span class='deleter'>&#x274c;</span>"); // value='" + theName + "'
+        theCat.append("<input class='editing " + sayWhich + "' autofocus><span class='deleter'>&#x274c;</span>"); // value='" + theName + "'
         $(".editing").attr("value", theName);
         $(".editing").select();
     }
 
-    function editCat(event) {
+    function editName(event) {
         if (event.which == "13") {
             var entry = $(this).val();
+            var $parentCat = $(this).parent();
+            var path;
+            var data = { name: entry };
+
+            if ($parentCat.hasClass("cat-select")) {
+                path = "cat";
+                data.id = selCat;
+            } else if ($parentCat.hasClass("proj-select")) {
+                path = "proj";
+                data.id = selProj ;
+            }
+
             $.ajax({
-                url: "admin/edit-cat",
+                url: "admin/edit-" + path,
                 method: "post",
                 dataType: "json",
-                data: {
-                    name: entry,
-                    id: selCat
-                },
+                data: data,
                 error: ajaxError,
                 success: function () {
-                    buildCats($types);
+                    buildCats($parentCat.parent());
                 }
             })
+        } else if (event.which == "27") {
+            buildCats($parentCat.parent());
+            $parentCat.addClass(path + "-select");
         }
     }
 
