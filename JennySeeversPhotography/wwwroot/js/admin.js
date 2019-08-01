@@ -4,8 +4,10 @@
     var $pics = $("#photo-display");
     var selCat;
     var selProj;
-    var selPic;
+    var selPic = [];
+    var uploads = [];
 
+    initUpload();
     buildCats($types);
 
     $types.on("click", ".category", selectCat);
@@ -21,6 +23,33 @@
     $projs.on("click", ".pencil", openEdit);
     $projs.on("keypress", ".adding", addProj);
     $projs.on("keypress", ".editing", editName);
+    $projs.on("click", ".deleter", deleteCat);
+
+    //$pics.on("click", "#add-pics", initUpload); use this for something else
+
+    function initUpload() {
+        var $dzdiv = $("#add-pics");
+        $dzdiv.addClass("dropzone");
+
+        var dz = new Dropzone("#add-pics", {
+            paramName: "file",
+            url: "admin/upload",
+            init: function () {
+                this.on("sending", function (file, xhr, formData) {
+                    formData.append("typeID", selCat);
+                    formData.append("projID", selProj);
+                });
+            }
+        });
+        dz.on("success", uploadComplete);
+        dz.on("error", function () {
+            alert("Upload Failed");
+        });
+    }
+
+    function uploadComplete(event, response) {
+        uploads.push(response);
+    }
 
     function addProj() {
         if (event.which == "13") {
@@ -47,12 +76,26 @@
     }
 
     function deleteCat() {
-        var id = $(this).parent().data("typeID");
-        console.log("TypeID = " + id);
-        if (confirm("Are you sure you want to delete this category and everything in it??")) {
-            if (confirm("Are you REALLY sure you want to delete this category and everything in it??")) {
+        var theCat = $(this).parent();
+        var whichColumn = theCat.parent().attr("id");
+        var sayWhich;
+        var id;
+        var url = "admin/delete-";
+
+        if (whichColumn == "cat-list") {
+            id = selCat;
+            sayWhich = "category";
+            url += "cat";
+        } else if (whichColumn == "projects") {
+            id = selProj;
+            sayWhich = "project";
+            url += "proj";
+        }
+        
+        if (confirm("Are you sure you want to delete this "+sayWhich+" and everything in it??")) {
+            if (confirm("Are you REALLY sure you want to delete this "+sayWhich+" and everything in it??")) {
                 $.ajax({
-                    url: "admin/delete-cat",
+                    url: url,
                     method: "delete",
                     dataType: "json",
                     data: {
@@ -60,15 +103,15 @@
                     },
                     error: ajaxError,
                     success: function () {
-                        buildCats($types);
+                        buildCats(theCat);
                     }
                 });
             } else {
-                buildCats($types);
+                buildCats(theCat);
                 return
             }
         } else {
-            buildCats($types);
+            buildCats(theCat);
             return
         }
     }
@@ -172,7 +215,7 @@
     function selectCat() {
         $(".cat-select").removeClass("cat-select");
         $(this).addClass("cat-select");
-        resetPics();
+        //resetPics();
         selCat = $(this).data("typeID");
         if (!$(this).hasClass("adder")) {
             buildCats($projs);
@@ -183,9 +226,13 @@
         $(".proj-select").removeClass("proj-select");
         $(this).addClass("proj-select");
         selProj = $(this).data("projID");
+
+
+        buildCats($pics);
+
+
         if (!$(this).hasClass("adder")) {
             if ($(this).has) {  // Fix this shit
-                buildCats($pics);
             } else {
                 alert("I've won the internet.");
             }
@@ -265,7 +312,7 @@
     };
 
     function resetPics() {
-        $add = $("#add-pic").clone().hide();
+        $add = $("#add-pics").clone().hide();
         $pics.empty().append($add);
     }
 });

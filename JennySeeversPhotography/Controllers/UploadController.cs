@@ -26,10 +26,10 @@ namespace JennySeeversPhotography.Controllers
             _config = c;
         }
 
-        [HttpGet("/media/{projID}/{picID}")]
-        public async Task<IActionResult> GetPic(int projID, int picID)
+        [HttpGet("media/{typeID}/{projID}/")]
+        public async Task<IActionResult> GetPic(int typeID, int projID)
         {
-            var filePath = _config.GetValue<string>("UploadPath") + projID + "/" + picID;
+            var filePath = _config.GetValue<string>("UploadPath")+ typeID + "/" + projID + "/";
             if (System.IO.File.Exists(filePath))
             {
                 var imageFile = System.IO.File.OpenRead(filePath);
@@ -41,10 +41,10 @@ namespace JennySeeversPhotography.Controllers
         }
 
         //[Authorize(Roles = _userManager.Users.)]
-        [HttpPost("/upload")]
-        public async Task<IActionResult> UploadPic(IFormFile file)
+        [HttpPost("upload")]
+        public async Task<IActionResult> UploadPic(IFormFile file, int typeID, int projID)
         {
-            var filePath = _config.GetValue<string>("UploadPath");
+            var filePath = _config.GetValue<string>("UploadPath") + typeID + "/" + projID + "/";
 
             if (!Directory.Exists(filePath))
             {

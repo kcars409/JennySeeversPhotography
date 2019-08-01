@@ -84,7 +84,7 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
-        [HttpDelete]
+        [HttpDelete("delete-proj")]
         public JsonResult DeleteProj(int id)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
