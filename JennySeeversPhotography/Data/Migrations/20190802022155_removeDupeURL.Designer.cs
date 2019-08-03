@@ -4,14 +4,16 @@ using JennySeeversPhotography.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace JennySeeversPhotography.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20190802022155_removeDupeURL")]
+    partial class removeDupeURL
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -55,8 +57,6 @@ namespace JennySeeversPhotography.Data.Migrations
                     b.Property<string>("PicURL");
 
                     b.Property<int?>("ProjectProjID");
-
-                    b.Property<string>("ThumbURL");
 
                     b.Property<string>("Title");
 

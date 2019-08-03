@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using JennySeeversPhotography.Data;
+using JennySeeversPhotography.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -19,9 +21,11 @@ namespace JennySeeversPhotography.Controllers
     {
         private readonly IConfiguration _config;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ApplicationDbContext _context;
 
-        public UploadController(IConfiguration c, UserManager<IdentityUser> um)
+        public UploadController(IConfiguration c, UserManager<IdentityUser> um, ApplicationDbContext db)
         {
+            _context = db;
             _userManager = um;
             _config = c;
         }
@@ -63,6 +67,18 @@ namespace JennySeeversPhotography.Controllers
                     ProcessImage(filePath, file.FileName);
                 }
             }
+
+            _context.Add(new Photo
+            {
+                PicURL = fullFile,
+                ThumbURL = filePath + "th-" + file.FileName,
+                Title = file.FileName,
+                IsFeatured = false,
+                PhotoProjID = projID,
+                Location = null
+            });
+
+            _context.SaveChanges();
 
             return Ok(new { file = "/media/" + file.FileName, thumbnail = "/media/" + "th-" + file.FileName });
         }

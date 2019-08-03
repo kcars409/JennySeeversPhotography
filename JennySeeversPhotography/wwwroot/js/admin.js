@@ -29,7 +29,7 @@
 
     function initUpload() {
         var $dzdiv = $("#add-pics");
-        $dzdiv.addClass("dropzone");
+        $dzdiv.addClass("dropzone").hide();
 
         var dz = new Dropzone("#add-pics", {
             paramName: "file",
@@ -218,6 +218,7 @@
         //resetPics();
         selCat = $(this).data("typeID");
         if (!$(this).hasClass("adder")) {
+            $("#add-pics").hide();
             buildCats($projs);
         }
     }
@@ -226,17 +227,18 @@
         $(".proj-select").removeClass("proj-select");
         $(this).addClass("proj-select");
         selProj = $(this).data("projID");
+        $("#add-pics").show().siblings().remove();
 
 
         buildCats($pics);
 
 
-        if (!$(this).hasClass("adder")) {
-            if ($(this).has) {  // Fix this shit
-            } else {
-                alert("I've won the internet.");
-            }
-        }
+        //if (!$(this).hasClass("adder")) {
+        //    if ($(this).has) {  // Fix this shit
+        //    } else {
+        //        alert("I've won the internet.");
+        //    }
+        //}
     }
 
     function buildCats(whichColumn) {
@@ -259,9 +261,22 @@
             data: data,
             error: ajaxError,
             success: function (data) {
-                fillColumn(data, whichColumn);
+                if (whichColumn == $projs || whichColumn == $types) {
+                    fillColumn(data, whichColumn);
+                } else if (whichColumn == $pics) {
+                    fillPics(data);
+                }
             }
         });
+    }
+
+    function fillPics(data) {
+        dataName = "picID"; //This is the data name to retrieve in the project builder
+        selPic = 0;
+        for (var i = 0; i < data.length; i++) {
+            $pics.append("<figure class='pic' ><img src='" + data[i].thumbURL + "'/><figcaption>" + data[i].title + "</figcaption>");
+            $pics.find(".pic:last-of-type").data("picID", data[i].picID);
+        }
     }
 
     function fillColumn(data, whichColumn) {
@@ -289,13 +304,6 @@
             }
             dataName = "projID"; //This is the data name to retrieve in the project builder
             selProj = 0;
-        } else if (whichColumn == $pics) {
-            for (var i = 0; i < data.length; i++) {
-                names.push(data[i].title);
-                ids.push(data[i].picID);
-            }
-            dataName = "picID"; //This is the data name to retrieve in the project builder
-            selPic = 0;
         }
         for (var ci = 0; ci < data.length; ci++) {
             whichColumn.append("<div class='category'><span class='item-name' id='this-un' /><span class='pencil hid-pencil'>&#x270E;</span></div>");
