@@ -16,7 +16,6 @@ using SixLabors.ImageSharp.Processing;
 
 namespace JennySeeversPhotography.Controllers
 {
-    [Route("admin")]
     public class UploadController : Controller
     {
         private readonly IConfiguration _config;
@@ -30,10 +29,10 @@ namespace JennySeeversPhotography.Controllers
             _config = c;
         }
 
-        [HttpGet("media/{typeID}/{projID}/")]
-        public async Task<IActionResult> GetPic(int typeID, int projID)
+        [HttpGet("media/{typeID}/{projID}/{name}")]
+        public async Task<IActionResult> GetPic(int typeID, int projID, string name)
         {
-            var filePath = _config.GetValue<string>("UploadPath")+ typeID + "/" + projID + "/";
+            var filePath = _config.GetValue<string>("UploadPath")+ typeID + "/" + projID + "/" + name;
             if (System.IO.File.Exists(filePath))
             {
                 var imageFile = System.IO.File.OpenRead(filePath);
@@ -45,7 +44,7 @@ namespace JennySeeversPhotography.Controllers
         }
 
         //[Authorize(Roles = _userManager.Users.)]
-        [HttpPost("upload")]
+        [HttpPost("admin/upload")]
         public async Task<IActionResult> UploadPic(IFormFile file, int typeID, int projID)
         {
             var filePath = _config.GetValue<string>("UploadPath") + typeID + "/" + projID + "/";
@@ -68,11 +67,15 @@ namespace JennySeeversPhotography.Controllers
                 }
             }
 
+            string title = file.FileName;
+            string relPath = "/media/" + typeID + "/" + projID + "/" + title;
+            string relThumb = "/media/" + typeID + "/" + projID + "/" + "th-" + title;
+
             _context.Add(new Photo
             {
-                PicURL = fullFile,
-                ThumbURL = filePath + "th-" + file.FileName,
-                Title = file.FileName,
+                PicURL = relPath,
+                ThumbURL = relThumb,
+                Title = title,
                 IsFeatured = false,
                 PhotoProjID = projID,
                 Location = null
@@ -80,7 +83,7 @@ namespace JennySeeversPhotography.Controllers
 
             _context.SaveChanges();
 
-            return Ok(new { file = "/media/" + file.FileName, thumbnail = "/media/" + "th-" + file.FileName });
+            return Ok(new { file = relPath, thumbnail = relThumb });
         }
 
         public void ProcessImage(string dir, string file)

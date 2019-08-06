@@ -26,20 +26,22 @@ main {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-sizing: border-box;
     height: 1.5em;
-    padding: 0.5ch;
 }
 
 .pencil {
     display: none;
     right: 0;
     color: white;
+    height: 100%;
+    width: 2em;
+    cursor: pointer;
 }
 
 .deleter {
     right: 0;
     color: white;
+    cursor: pointer;
 }
 
 .category:hover {
@@ -47,17 +49,23 @@ main {
     cursor: pointer;
 }
 
-.category:hover > .pencil {
-    display: block;
-    background-color: lightcoral;
-}
+    .category:hover > .pencil {
+        display: block;
+        background-color: lightcoral;
+    }
 
-.category:hover > .pencil:hover {
-    background-color: red;
-}
+        .category:hover > .pencil:hover {
+            background-color: red;
+        }
 
 .item-name {
-    display: block;
+    display: inline-block;
+    box-sizing: border-box;
+    flex-grow: 1;
+    cursor: pointer;
+    height: 100%;
+    line-height: 1.5em;
+    vertical-align: middle;
 }
 
 .folder-level {
@@ -68,23 +76,42 @@ main {
     border-left: 0;
 }
 
-.cat-select {
+.cat-select, .proj-select {
     background-color: steelblue;
     height: 2em;
 }
 
-.proj-select {
-    background-color: steelblue;
-    height: 2em;
-}
+    .cat-select .item-name, .proj-select .item-name {
+        line-height: 2em;
+        vertical-align: middle;
+    }
+
+    .cat-select .pencil, .proj-select .pencil {
+        line-height: 2em;
+        vertical-align: middle;
+        justify-content: center;
+    }
 
 /* This is stuff for the photos section: */
 
-#photo-display {
+#photos {
     height: 100vh;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    flex-wrap: wrap;
+    object-fit: contain;
+}
+
+#add-pics {
+    width: 100%;
+}
+
+#photo-display {
     display: flex;
     flex-grow: 1;
     flex-wrap: wrap;
+    overflow: scroll;
     object-fit: contain;
 }
 
@@ -104,4 +131,8 @@ main {
     box-sizing: border-box;
     cursor: pointer;
     user-select: none;
+}
+
+.edit-hide {
+    display: none !important;
 }

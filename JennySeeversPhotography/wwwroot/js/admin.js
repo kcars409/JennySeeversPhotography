@@ -1,29 +1,27 @@
 ﻿$(function () {
     var $types = $("#cat-list");
     var $projs = $("#projects");
-    var $pics = $("#photo-display");
+    var $pics = $("#photos");
+    var typeList = [{}];
+    var projList = [{}];
     var selCat;
     var selProj;
     var selPic = [];
     var uploads = [];
+    var $main = $("main");
 
     initUpload();
-    buildCats($types);
+    pullCats($types);
 
-    $types.on("click", ".category", selectCat);
-    $types.on("click", "#add-cat", openAdder);
-    $types.on("click", ".pencil", openEdit);
-    $types.on("keypress", ".adding", addCat);
-    $types.on("keypress", ".editing", editName);
-    $types.on("click", ".deleter", deleteCat);
-    //$types.on("focusout", ".editing", cancelEdit); //this needs love
-
-    $projs.on("click", ".category", selectProj);
-    $projs.on("click", "#add-proj", openAdder);
-    $projs.on("click", ".pencil", openEdit);
-    $projs.on("keypress", ".adding", addProj);
-    $projs.on("keypress", ".editing", editName);
-    $projs.on("click", ".deleter", deleteCat);
+    $main.on("click", ".item-name", selectCat);
+    $main.on("click", "#add-cat", openAdder);
+    $main.on("click", "#add-proj", openAdder);
+    $main.on("click", ".pencil", openEdit);
+    $main.on("keypress", ".adding", addCat);
+    $main.on("keypress", ".editing", editName);
+    $main.on("click", ".deleter", deleteCat);
+    $main.on("focusout", ".editing", cancelEdit);
+    
 
     //$pics.on("click", "#add-pics", initUpload); use this for something else
 
@@ -49,30 +47,7 @@
 
     function uploadComplete(event, response) {
         uploads.push(response);
-    }
-
-    function addProj() {
-        if (event.which == "13") {
-            var entry = $(this).val();
-            $.ajax({
-                url: "admin/add-proj",
-                method: "post",
-                dataType: "json",
-                data: {
-                    name: entry,
-                    typeID: selCat
-                },
-                error: ajaxError,
-                success: function () {
-                    $(".proj-select").removeClass("proj-select");
-                    buildCats.call($("#cat-list .cat-select"), $projs);
-                }
-            });
-        } else if (event.which == "27") {
-            cancelEdit.call(this);
-        } else if ($(this).val.length > 20) {
-            //tell it what to do if the project name is too long
-        }
+        pullCats($pics);
     }
 
     function deleteCat() {
@@ -103,42 +78,40 @@
                     },
                     error: ajaxError,
                     success: function () {
-                        buildCats(theCat);
+                        pullCats(theCat);
                     }
                 });
             } else {
-                buildCats(theCat);
+                pullCats(theCat);
                 return
             }
         } else {
-            buildCats(theCat);
+            pullCats(theCat);
             return
         }
     }
 
     function cancelEdit() {
-        alert("this worked");
         var $cat = $(this).parent();
         $(".editing").remove();
         $(".deleter").remove();
-        $cat.children().show();
-        $cat.find(".pencil").hide();
+        $cat.children().removeClass("edit-hide");
     }
 
     function openEdit() {
-        var theCat = $(this).parent();
-        var theName = theCat.find(".item-name").text();
-        var whichColumn = theCat.parent().attr("id");
+        selectCat.call(this);
+
+        var $cat = $(this).parent();
+        var theName = $cat.find(".item-name").text();
+        var whichColumn = $cat.parent().attr("id");
         var sayWhich;
         if (whichColumn == "cat-list") {
-            selCat = theCat.data("typeID");
             sayWhich = "add-cat";
         } else if (whichColumn == "projects") {
-            selCat = theCat.data("projID");
             sayWhich = "add-proj";
         }
-        theCat.children().hide();
-        theCat.append("<input class='editing " + sayWhich + "' autofocus><span class='deleter'>&#x274c;</span>"); // value='" + theName + "'
+        $cat.children().addClass("edit-hide");
+        $cat.append("<input class='editing " + sayWhich + "' autofocus><span class='deleter'>&#x274c;</span>");
         $(".editing").attr("value", theName);
         $(".editing").select();
     }
@@ -165,30 +138,40 @@
                 data: data,
                 error: ajaxError,
                 success: function () {
-                    buildCats($parentCat.parent());
+                    pullCats($parentCat.parent());
                 }
             })
         } else if (event.which == "27") {
-            buildCats($parentCat.parent());
+            pullCats($parentCat.parent());
             $parentCat.addClass(path + "-select");
         }
     }
 
     function addCat(event) {
         if (event.which == "13") {
-            var entry = $(this).val();
+            var data = { name: $(this).val() };
+            var url = "admin/add-";
+            var $col = $(this).parent().parent();
+
+            if ($col.attr("id") == $types.attr("id")) {
+                url += "cat";
+            } else if ($col.attr("id") == $projs.attr("id")) {
+                url += "proj";
+                data.typeID = selCat;
+            }
+
             $.ajax({
-                url: "admin/add-cat",
+                url: url,
                 method: "post",
                 dataType: "json",
-                data: {
-                    name: entry
-                },
+                data: data,
                 error: ajaxError,
                 success: function () {
-                    buildCats($types);
+                    pullCats($col);
                 }
             });
+        } else if (event.which == "27") {
+            cancelEdit.call(this);
         } else if ($(this).val.length > 20) {
             //tell it what to do if the category name is too long
         }
@@ -196,8 +179,11 @@
 
     function openAdder() {
         var whatItIs;
-        var $nav = $(this).parent();
-        if ($nav.attr("id") == "cat-list") {
+        var $col = $(this).parent();
+
+        $("#add-pics").hide();
+
+        if ($col.attr("id") == "cat-list") {
             whatItIs = "Class";
         } else {
             if (selCat > 0) {
@@ -213,44 +199,49 @@
     }
 
     function selectCat() {
-        $(".cat-select").removeClass("cat-select");
-        $(this).addClass("cat-select");
-        //resetPics();
-        selCat = $(this).data("typeID");
-        if (!$(this).hasClass("adder")) {
-            $("#add-pics").hide();
-            buildCats($projs);
+        cancelEdit();
+
+        var $cat = $(this).parent();
+        var column = $cat.parent().attr("id");
+        var type;
+
+        if (column == "cat-list") {
+            type = "cat";
+            selCat = $cat.data("typeID");
+            changeSel(type);
+
+            if (!$cat.hasClass("adder")) {
+                $("#add-pics").hide()
+                pullCats($projs);
+            }
+        } else if (column == "projects") {
+            type = "proj";
+            selProj = $cat.data("projID");
+            changeSel(type);
+
+            if (!$cat.hasClass("adder")) {
+                $("#add-pics").show();
+                pullCats($pics);
+            }
+        }
+
+        function changeSel (type) {
+            $("." + type + "-select").removeClass(type + "-select");
+            $cat.addClass(type + "-select");
+            resetPics();
         }
     }
 
-    function selectProj() {
-        $(".proj-select").removeClass("proj-select");
-        $(this).addClass("proj-select");
-        selProj = $(this).data("projID");
-        $("#add-pics").show().siblings().remove();
-
-
-        buildCats($pics);
-
-
-        //if (!$(this).hasClass("adder")) {
-        //    if ($(this).has) {  // Fix this shit
-        //    } else {
-        //        alert("I've won the internet.");
-        //    }
-        //}
-    }
-
-    function buildCats(whichColumn) {
+    function pullCats($whichColumn) {
         var url = "admin/";
         var data = {};
 
-        if (whichColumn == $types) {
+        if ($whichColumn.attr("id") == "cat-list") {
             url += "get-cats";
-        } else if (whichColumn == $projs) {
+        } else if ($whichColumn.attr("id") == "projects") {
             url += "get-projs";
             data = { typeID: selCat };
-        } else if (whichColumn == $pics) {
+        } else if ($whichColumn.attr("id") == "photos") {
             url += "get-pics";
             data = { id: selProj };
         }
@@ -261,57 +252,75 @@
             data: data,
             error: ajaxError,
             success: function (data) {
-                if (whichColumn == $projs || whichColumn == $types) {
-                    fillColumn(data, whichColumn);
-                } else if (whichColumn == $pics) {
+                if ($whichColumn.attr("id") == $projs.attr("id") || $whichColumn.attr("id") == $types.attr("id")) {
+                    buildCats(data, $whichColumn);
+                    fillColumn($whichColumn);
+                } else if ($whichColumn.attr("id") == $pics.attr("id")) {
                     fillPics(data);
                 }
             }
         });
     }
 
-    function fillPics(data) {
-        dataName = "picID"; //This is the data name to retrieve in the project builder
-        selPic = 0;
-        for (var i = 0; i < data.length; i++) {
-            $pics.append("<figure class='pic' ><img src='" + data[i].thumbURL + "'/><figcaption>" + data[i].title + "</figcaption>");
-            $pics.find(".pic:last-of-type").data("picID", data[i].picID);
+    function buildCats(data, $whichColumn) {
+        // This part breaks down the data back from the ajax call and assigns it to an array of JS objects.
+        if ($whichColumn.attr("id") == $types.attr("id")) {
+            typeList.length = 0;
+            for (var i = 0; i < data.length; i++) {
+                typeList.push({
+                    name: data[i].typeName,
+                    id: data[i].typeID
+                });
+            }
+        } else if ($whichColumn.attr("id") == $projs.attr("id")) {
+            projList.length = 0;
+            for (var i = 0; i < data.length; i++) {
+                projList.push({
+                    name: data[i].projName,
+                    id: data[i].projID
+                });
+            }
         }
     }
 
-    function fillColumn(data, whichColumn) {
+    function fillPics(data) {
+        var $display = $("#photo-display");
+        selPic = undefined;
+        for (var i = 0; i < data.length; i++) {
+            $display.append("<figure class='pic' ><img src='" + data[i].thumbURL + "'/><figcaption>" + data[i].title + "</figcaption>");
+            $display.find(".pic:last-of-type").data("picID", data[i].picID);
+        }
+    }
+
+    function fillColumn($whichColumn) {
         $(".adding").remove();
 
-        var $add = whichColumn.find(".adder").clone();
-        var names = [];
-        var ids = [];
+        var $add = $whichColumn.find(".adder").clone();
         var dataName = "";
         
-        whichColumn.empty();
+        $whichColumn.empty();
 
-        // This part breaks down the data back from the ajax call
-        if (whichColumn == $types) {
-            for (var i = 0; i < data.length; i++) {
-                names.push(data[i].typeName);
-                ids.push(data[i].typeID);
-            }
-            dataName = "typeID"; //This is the data name to retrieve in the project category builder
-            selCat = 0;
-        } else if (whichColumn == $projs) {
-            for (var i = 0; i < data.length; i++) {
-                names.push(data[i].projName);
-                ids.push(data[i].projID);
-            }
-            dataName = "projID"; //This is the data name to retrieve in the project builder
-            selProj = 0;
+        if ($whichColumn.attr("id") == $types.attr("id")) {
+            dataName = "typeID"; //This is the data name to retrieve in the project builder
+            selCat = undefined;
+            selProj = undefined;
+            constructor(typeList);
+        } else if ($whichColumn.attr("id") == $projs.attr("id")) {
+            dataName = "projID"; //This is the data name to retrieve in the project category builder
+            selProj = undefined;
+            constructor(projList);
         }
-        for (var ci = 0; ci < data.length; ci++) {
-            whichColumn.append("<div class='category'><span class='item-name' id='this-un' /><span class='pencil hid-pencil'>&#x270E;</span></div>");
-            $("#this-un").text(names[ci]).removeAttr("id");
-            whichColumn.find(".category:last-of-type").data(dataName, ids[ci]);
+
+        // tell the function which listCat/listProj to use
+        function constructor(list) {
+            for (var i = 0; i < list.length; i++) {
+                $whichColumn.append("<div class='category'><span class='item-name' id='this-un' /><span class='pencil hid-pencil'>&#x270E;</span></div>");
+                $("#this-un").text(list[i].name).removeAttr("id");
+                $whichColumn.find(".category:last-of-type").data(dataName, list[i].id);
+            }
         }
         
-        whichColumn.append($add);
+        $whichColumn.append($add);
         $add.removeClass("cat-select").removeClass("proj-select").contents().show();
     }
 
@@ -320,7 +329,6 @@
     };
 
     function resetPics() {
-        $add = $("#add-pics").clone().hide();
-        $pics.empty().append($add);
+        $("#photo-display").empty();
     }
 });
