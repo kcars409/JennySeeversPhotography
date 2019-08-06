@@ -38,33 +38,6 @@ namespace JennySeeversPhotography.Controllers
             return new JsonResult(pics);
         }
 
-        [HttpPost("add-pic")]
-        public JsonResult AddPic(int id, string name, bool isFeatured, string location)
-        {
-            IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
-
-            var proj = _context.Projects
-                .Include(p => p.ProjPhotos)
-                .Where(p => p.ProjID == id)
-                .First();
-                
-                
-            proj.ProjPhotos.Add(new Photo
-            {
-                Title = name,
-                PhotoProjID = id,
-                IsFeatured = isFeatured,
-                Location = location
-            });
-
-            _context.SaveChanges();
-
-            return new JsonResult(new
-            {
-                status = true
-            });
-        }
-
         [HttpPost("edit-pic")]
         public JsonResult EditPic(int id, string name, bool isFeatured, string location)
         {
