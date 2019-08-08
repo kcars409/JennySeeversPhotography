@@ -90,17 +90,35 @@ namespace JennySeeversPhotography.Controllers
         {
             Image<Rgba32> image = Image.Load(dir + file);
 
-            image.Mutate(x => x
-            .Resize(0, 1080)
-            );
+            if (image.Height >= image.Width)
+            {
+                image.Mutate(x => x
+                .Resize(1080, 0)
+                );
 
-            image.Save(dir + file);
+                image.Save(dir + file);
 
-            image.Mutate(x => x
-            .Resize(0, 300)
-            );
+                image.Mutate(x => x
+                .Resize(250, 0)
+                );
 
-            image.Save(dir + "th-" + file);
+                image.Save(dir + "th-" + file);
+            }
+
+            if (image.Width >= image.Height)
+            {
+                image.Mutate(x => x
+                .Resize(0, 1080)
+                );
+
+                image.Save(dir + file);
+
+                image.Mutate(x => x
+                .Resize(0, 250)
+                );
+
+                image.Save(dir + "th-" + file);
+            }
         }
     }
 }

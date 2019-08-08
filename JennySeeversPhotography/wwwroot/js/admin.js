@@ -2,16 +2,18 @@
     var $types = $("#cat-list");
     var $projs = $("#projects");
     var $pics = $("#photos");
+    var $picDisp = $("#photo-display");
     var typeList = [{}];
     var projList = [{}];
     var selCat;
     var selProj;
-    var selPic = [];
+    var selPics = [];
     var uploads = [];
     var $main = $("main");
 
     initUpload();
     pullCats($types);
+    selPics.length = 0;
 
     $main.on("click", ".item-name", selectCat);
     $main.on("click", "#add-cat", openAdder);
@@ -21,6 +23,22 @@
     $main.on("keypress", ".editing", editName);
     $main.on("click", ".deleter", deleteCat);
     $main.on("focusout", ".editing", cancelEdit);
+
+    $picDisp.on("click", ".photo-group", togSelPics);
+
+    function togSelPics() {
+        var picID = $(this).data("picID");
+
+        if (!$(this).hasClass("sel-pic")) {
+            $(this).addClass("sel-pic");
+            selPics.push(picID);
+        } else {
+            $(this).removeClass("sel-pic");
+            var index = selPics.indexOf(picID);
+            selPics.splice(index, 1);
+        }
+        console.log(selPics);
+    }
     
 
     //$pics.on("click", "#add-pics", initUpload); use this for something else
@@ -51,17 +69,17 @@
     }
 
     function deleteCat() {
-        var theCat = $(this).parent();
-        var whichColumn = theCat.parent().attr("id");
+        var $theCat = $(this).parent().parent();
+        var $whichColumn = $theCat.parent();
         var sayWhich;
         var id;
         var url = "admin/delete-";
 
-        if (whichColumn == "cat-list") {
+        if ($whichColumn.attr("id") == "cat-list") {
             id = selCat;
             sayWhich = "category";
             url += "cat";
-        } else if (whichColumn == "projects") {
+        } else if ($whichColumn.attr("id") == "projects") {
             id = selProj;
             sayWhich = "project";
             url += "proj";
@@ -78,15 +96,16 @@
                     },
                     error: ajaxError,
                     success: function () {
-                        pullCats(theCat);
+                        pullCats($whichColumn);
+                        resetPics();
                     }
                 });
             } else {
-                pullCats(theCat);
+                pullCats($whichColumn);
                 return
             }
         } else {
-            pullCats(theCat);
+            pullCats($whichColumn);
             return
         }
     }
@@ -111,8 +130,8 @@
             sayWhich = "add-proj";
         }
         $cat.children().addClass("edit-hide");
-        $cat.append("<input class='editing " + sayWhich + "' autofocus><span class='deleter'>&#x274c;</span>");
-        $(".editing").attr("value", theName);
+        $cat.append("<div class='editing'><input class='" + sayWhich + "' autofocus><span class='deleter'>&#x274c;</span></div>");
+        $(".editing").find("input").attr("value", theName);
         $(".editing").select();
     }
 
@@ -242,7 +261,7 @@
             url += "get-projs";
             data = { typeID: selCat };
         } else if ($whichColumn.attr("id") == "photos") {
-            url += "get-pics";
+            url = "images/get-proj";
             data = { id: selProj };
         }
 
@@ -287,8 +306,8 @@
         var $display = $("#photo-display");
         selPic = undefined;
         for (var i = 0; i < data.length; i++) {
-            $display.append("<figure class='pic' ><img src='" + data[i].thumbURL + "'/><figcaption>" + data[i].title + "</figcaption>");
-            $display.find(".pic:last-of-type").data("picID", data[i].picID);
+            $display.append("<div class='photo-group'><figure class='pic' ><img src='" + data[i].thumbURL + "'/></figure><figcaption>" + data[i].title + "</figcaption></div>");
+            $display.find(".photo-group:last-of-type").data("picID", data[i].picID);
         }
     }
 

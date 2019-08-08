@@ -1,4 +1,9 @@
-﻿body {
+﻿:root {
+    --pic-size: 250px; /* This only works because the pic frame is square. */
+    --pic-frame-size: 272px;
+}
+
+body {
     margin: 0;
 }
 
@@ -14,12 +19,13 @@ main {
 
 #cat-list {
     display: flex;
-    width: 25ch;
+    min-width: 25ch;
 }
 
 #projects {
     display: flex;
-    width: 35ch;
+    flex-shrink: 0;
+    min-width: 35ch;
 }
 
 .category {
@@ -92,47 +98,74 @@ main {
         justify-content: center;
     }
 
-/* This is stuff for the photos section: */
-
 #photos {
     height: 100vh;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    flex-wrap: wrap;
     object-fit: contain;
 }
 
-#add-pics {
-    width: 100%;
-}
+    #add-pics {
+        width: 100%;
+    }
 
-#photo-display {
-    display: flex;
-    flex-grow: 1;
-    flex-wrap: wrap;
-    overflow: scroll;
-    object-fit: contain;
-}
+    #photo-display {
+        display: flex;
+        flex-grow: 1;
+        flex-wrap: wrap;
+        overflow: scroll;
+    }
 
-.photo {
-    height: 250px;
-    width: 250px;
-    border: 1px dashed darkgrey;
-    font-size: 3em;
-    font-weight: bolder;
-    color: darkgrey;
-    line-height: 230px;
-    vertical-align: middle;
-    text-align: center;
-    margin-top: 1rem;
-    margin-left: 1rem;
-    padding: 10px;
-    box-sizing: border-box;
-    cursor: pointer;
-    user-select: none;
-}
+    #toolbar {
+        background-color: grey;
+    }
+
+        .photo-group {
+            display: flex;
+            position: relative;
+            width: var(--pic-frame-size);
+            height: calc(var(--pic-frame-size) + 2em);
+            margin: 1rem 0 0 1rem;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+            .photo-group::before {
+                position: absolute;
+                content: '';
+                height: inherit;
+                width: inherit;
+                background-color: rgba(10,10,190,0);
+                cursor: pointer;
+            }
+
+            .pic {
+                height: var(--pic-frame-size);
+                width: var(--pic-frame-size);
+                margin: 0;
+                border: 1px dashed darkgrey;
+                text-align: center;
+                padding: 10px;
+                box-sizing: border-box;
+                user-select: none;
+            }
+
+                .pic img {
+                    object-fit: contain;
+                    height: var(--pic-size);
+                    width: var(--pic-size);
+                }
+
+                .pic + figcaption {
+                    line-height: 2em;
+                }
 
 .edit-hide {
     display: none !important;
+}
+
+.sel-pic::before {
+    background-color: rgba(10,10,190,.3);
 }

@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace JennySeeversPhotography.Controllers
 {
-    [Route("admin")]
+    [Route("images")]
     public class PhotoController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -26,7 +26,7 @@ namespace JennySeeversPhotography.Controllers
             _userManager = userManager;
         }
 
-        [HttpGet("get-pics")]
+        [HttpGet("get-proj")]
         public JsonResult GetPics(int id)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
@@ -36,6 +36,39 @@ namespace JennySeeversPhotography.Controllers
                 .ToList();
 
             return new JsonResult(pics);
+        }
+
+        [HttpGet("get-feat")]
+        public JsonResult GetFeat()
+        {
+            IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
+
+            List<Photo> pics = _context.Photos
+                .Where(p => p.IsFeatured == true)
+                .ToList();
+
+            return new JsonResult(pics);
+        }
+
+        [HttpGet("set-feat")]
+        public JsonResult SetFeat(int id)
+        {
+            IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
+
+            var pic = _context.Photos
+                 .Where(p => p.PicID == id)
+                 .First();
+
+            pic.IsFeatured = true;
+
+            _context.Update(pic);
+
+            _context.SaveChanges();
+
+            return new JsonResult(new
+            {
+                status = true
+            });
         }
 
         [HttpPost("edit-pic")]
