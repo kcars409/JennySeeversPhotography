@@ -25,6 +25,9 @@
     $main.on("focusout", ".editing", cancelEdit);
 
     $picDisp.on("click", ".photo-group", togSelPics);
+    $("#pic-delete").click(function () {
+        deletePics(selPics);
+    });
 
     function togSelPics() {
         var picID = $(this).data("picID");
@@ -107,6 +110,34 @@
         } else {
             pullCats($whichColumn);
             return
+        }
+    }
+
+    function deletePics(picArray) {
+        if (picArray.length > 0) {
+            for (var i = 0; i < picArray.length; i++) {
+                $.ajax({
+                    url: "admin/delete-pic",
+                    method: "delete",
+                    dataType: "json",
+                    data: { id: picArray[i] },
+                    error: ajaxError,
+                    success: function () {
+                        hidePic(picArray[i]);
+                    }
+                });
+            }
+            pullCats($pics);
+        }
+    }
+
+    function hidePic(picID) {
+        var kids = $("#photo-display").children();
+        var len = kids.length;
+        for (var i = 0; i < len; i++) {
+            if (kids[i].data("picID") == picID) {
+                kids[i].remove();
+            }
         }
     }
 

@@ -61,9 +61,16 @@ namespace JennySeeversPhotography.Controllers
                 await file.CopyToAsync(stream);
                 stream.Close();
 
-                if (fullFile.ToLower().EndsWith(".jpg"))
+                string lowfile = fullFile.ToLower();
+
+                if (typeTest(lowfile))
                 {
                     ProcessImage(filePath, file.FileName);
+                }
+
+                bool typeTest(string path)
+                {
+                    return (path.EndsWith(".jpg") || path.EndsWith(".png") || path.EndsWith(".svg") || path.EndsWith(".bmp"));
                 }
             }
 
@@ -84,6 +91,32 @@ namespace JennySeeversPhotography.Controllers
             _context.SaveChanges();
 
             return Ok(new { file = relPath, thumbnail = relThumb });
+        }
+
+        [HttpDelete("admin/delete-pic")]
+        public JsonResult DeletePic(int id)
+        {
+            var pic = _context.Photos
+                .Where(p => p.PicID == id)
+                .First();
+
+            string picPath = pic.PicURL;
+            string thumbPath = pic.ThumbURL;
+
+            picPath = picPath.Remove(0, 7);
+            thumbPath = thumbPath.Remove(0, 7);
+
+            picPath = _config.GetValue<string>("UploadPath") + picPath;
+            thumbPath = _config.GetValue<string>("UploadPath") + thumbPath;
+            
+
+            System.IO.File.Delete(picPath);
+            System.IO.File.Delete(thumbPath);
+
+            return new JsonResult(new
+            {
+                status = true
+            });
         }
 
         public void ProcessImage(string dir, string file)
