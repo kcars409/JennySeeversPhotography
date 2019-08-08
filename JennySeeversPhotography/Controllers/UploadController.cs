@@ -113,6 +113,10 @@ namespace JennySeeversPhotography.Controllers
             System.IO.File.Delete(picPath);
             System.IO.File.Delete(thumbPath);
 
+            _context.Remove(pic);
+
+            _context.SaveChanges();
+
             return new JsonResult(new
             {
                 status = true

@@ -135,7 +135,7 @@
         var kids = $("#photo-display").children();
         var len = kids.length;
         for (var i = 0; i < len; i++) {
-            if (kids[i].data("picID") == picID) {
+            if (kids[i].data("picID") == picID) { // This doesn't work because children() doesn't return an array.
                 kids[i].remove();
             }
         }
@@ -334,7 +334,7 @@
     }
 
     function fillPics(data) {
-        var $display = $("#photo-display");
+        var $display = $("#photo-display").empty();
         selPic = undefined;
         for (var i = 0; i < data.length; i++) {
             $display.append("<div class='photo-group'><figure class='pic' ><img src='" + data[i].thumbURL + "'/></figure><figcaption>" + data[i].title + "</figcaption></div>");
