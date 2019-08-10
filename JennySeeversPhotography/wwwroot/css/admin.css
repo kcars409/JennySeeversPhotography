@@ -108,6 +108,7 @@ main {
 
     #add-pics {
         width: 100%;
+        overflow-y: scroll;
     }
 
     #photo-display {

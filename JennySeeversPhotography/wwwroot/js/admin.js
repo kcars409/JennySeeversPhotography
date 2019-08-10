@@ -132,11 +132,10 @@
     }
 
     function hidePic(picID) {
-        var kids = $("#photo-display").children();
-        var len = kids.length;
+        var len = $pics.children().length;
         for (var i = 0; i < len; i++) {
-            if (kids[i].data("picID") == picID) { // This doesn't work because children() doesn't return an array.
-                kids[i].remove();
+            if ($pics.find(".photo-group:nth-of-type("+i+")").data("picID") == picID) {
+                $pics.find(".photo-group:nth-of-type(" + i + ")").remove();
             }
         }
     }
@@ -250,6 +249,7 @@
 
     function selectCat() {
         cancelEdit();
+        selPics.length = 0;
 
         var $cat = $(this).parent();
         var column = $cat.parent().attr("id");
