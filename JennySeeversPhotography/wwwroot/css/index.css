@@ -1,1 +1,24 @@
-﻿
+﻿body {
+    margin: 0;
+    text-align: center;
+}
+
+#logo {
+    height: 250px;
+}
+
+nav {
+    position: relative;
+}
+
+.proj-category {
+    font-family: 'Red Hat Display', sans-serif;
+    color: darkgrey;
+    cursor: pointer;
+    padding: 1ch;
+    border-right: 1px solid darkgrey;
+}
+
+.proj-category:last-of-type {
+    border: none;
+}

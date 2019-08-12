@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace JennySeeversPhotography.Controllers
 {
-    [Route("admin")]
     public class CatController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -37,7 +36,7 @@ namespace JennySeeversPhotography.Controllers
             return new JsonResult(cats);
         }
 
-        [HttpPost("add-cat")]
+        [HttpPost("admin/add-cat")]
         public JsonResult AddCat(string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
@@ -55,7 +54,7 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
-        [HttpPost("edit-cat")]
+        [HttpPost("admin/edit-cat")]
         public JsonResult EditCat(int id, string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
@@ -76,7 +75,7 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
-        [HttpDelete("delete-cat")]
+        [HttpDelete("admin/delete-cat")]
         public JsonResult DeleteCat(int id)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;

@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 
 namespace JennySeeversPhotography.Controllers
 {
-    [Route("admin")]
     public class ProjController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -38,7 +37,8 @@ namespace JennySeeversPhotography.Controllers
             return new JsonResult(projs);
         }
 
-        [HttpPost("add-proj")]
+        // make this protected.
+        [HttpPost("admin/add-proj")]
         public JsonResult AddProj(int typeID, string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
@@ -63,7 +63,7 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
-        [HttpPost("edit-proj")]
+        [HttpPost("admin/edit-proj")]
         public JsonResult EditProj(int id, string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
@@ -84,7 +84,7 @@ namespace JennySeeversPhotography.Controllers
             });
         }
 
-        [HttpDelete("delete-proj")]
+        [HttpDelete("admin/delete-proj")]
         public JsonResult DeleteProj(int id)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;

@@ -283,13 +283,13 @@
     }
 
     function pullCats($whichColumn) {
-        var url = "admin/";
+        var url;
         var data = {};
 
         if ($whichColumn.attr("id") == "cat-list") {
-            url += "get-cats";
+            url = "get-cats";
         } else if ($whichColumn.attr("id") == "projects") {
-            url += "get-projs";
+            url = "get-projs";
             data = { typeID: selCat };
         } else if ($whichColumn.attr("id") == "photos") {
             url = "images/get-proj";
