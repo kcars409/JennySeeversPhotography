@@ -1,26 +1,28 @@
 ﻿$(function () {
-    var cats = [];
+    var cats;
 
-    buildTypes();
+    pageInit();
 
-    function buildTypes() {
+    // This pulls the categories and their projects into cats[]
+    function pageInit() {
         $.ajax({
             url: "get-cats",
             dataType: "json",
             error: dbError,
-            success: buildButtons
+            success: function (data) {
+                cats = data;
+                buildNav();
+            }
         });
     }
 
-    function buildButtons(data) {
-        cats.length = 0;
+    function buildNav() {
         var temp = $("#cats-template").html();
         var $nav = $("nav");
 
-        for (var i = 0; i < data.length; i++) {
+        for (var i = 0; i < cats.length; i++) {
             var $c = $(temp);
-            cats.push(data[i].typeName)
-            $c.text(cats[i]);
+            $c.find(".proj-category").text(cats[i].typeName);
             $nav.append($c);
         }
     }

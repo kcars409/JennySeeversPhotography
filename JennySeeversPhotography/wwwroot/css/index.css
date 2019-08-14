@@ -11,7 +11,12 @@ nav {
     position: relative;
 }
 
+.cat-outlay {
+    display: inline;
+}
+
 .proj-category {
+    display: inline-block;
     font-family: 'Red Hat Display', sans-serif;
     color: darkgrey;
     cursor: pointer;

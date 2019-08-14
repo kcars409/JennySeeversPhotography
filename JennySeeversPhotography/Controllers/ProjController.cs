@@ -36,15 +36,14 @@ namespace JennySeeversPhotography.Controllers
 
             return new JsonResult(projs);
         }
-
-        // make this protected.
+        
         [HttpPost("admin/add-proj")]
         public JsonResult AddProj(int typeID, string name)
         {
             IdentityUser user = Task.Run(async () => { return await _userManager.GetUserAsync(HttpContext.User); }).Result;
 
             var type = _context.ProjTypes
-                .Include(t => t.ProjectsOfType) //wouldn't hurt to ask about this
+                .Include(t => t.ProjectsOfType)
                 .Where(t => t.TypeID == typeID)
                 .First();
 
@@ -94,6 +93,12 @@ namespace JennySeeversPhotography.Controllers
                 .First();
 
             _context.Remove(proj);
+
+            //List<Photo> photos = _context.Photos
+            //    .Where(p => p.PhotoProjID == id)
+            //    .ToList();
+
+            //_context.RemoveRange(photos);
 
             _context.SaveChanges();
 

@@ -1,4 +1,6 @@
 ﻿$(function () {
+    login();
+
     var $types = $("#cat-list");
     var $projs = $("#projects");
     var $pics = $("#photos");
@@ -11,9 +13,12 @@
     var uploads = [];
     var $main = $("main");
 
-    initUpload();
-    pullCats($types);
-    selPics.length = 0;
+    function init() {
+        initUpload();
+        pullCats($types);
+        selPics.length = 0;
+    }
+
 
     $main.on("click", ".item-name", selectCat);
     $main.on("click", "#add-cat", openAdder);
@@ -29,6 +34,15 @@
         deletePics(selPics);
     });
 
+    function login() {
+        $("main").hide();
+        $("#submit-login").click(checkLogin);
+
+        function checkLogin() {
+            alert("You clicked this, fool.");
+        }
+    }
+
     function togSelPics() {
         var picID = $(this).data("picID");
 
@@ -42,9 +56,6 @@
         }
         console.log(selPics);
     }
-    
-
-    //$pics.on("click", "#add-pics", initUpload); use this for something else
 
     function initUpload() {
         var $dzdiv = $("#add-pics");
@@ -167,7 +178,7 @@
 
     function editName(event) {
         if (event.which == "13") {
-            var entry = $(this).val();
+            var entry = $(this).find("input").val();
             var $parentCat = $(this).parent();
             var path;
             var data = { name: entry };
